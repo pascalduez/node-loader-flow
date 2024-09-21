@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { isBuiltin } from 'node:module';
 
 import flowRemoveTypes from 'flow-remove-types';
@@ -23,6 +24,12 @@ export async function load(url, context, defaultLoad) {
   };
 }
 
+let allowed = ['.js', '.mjs', '.cjs', '.jsx', '.flow'];
+
 function shouldTransform(url) {
-  return !isBuiltin(url) && !/node_modules/.test(url);
+  return (
+    !isBuiltin(url) &&
+    !/node_modules/.test(url) &&
+    allowed.includes(path.extname(url))
+  );
 }
