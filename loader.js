@@ -7,12 +7,18 @@ export async function load(url, context, defaultLoad) {
     return defaultLoad(url, context, defaultLoad);
   }
 
-  const { source, format } = await defaultLoad(url, context, defaultLoad);
+  let transformed;
+  let { source, format } = await defaultLoad(url, context, defaultLoad);
 
-  const transformed = flowRemoveTypes(source.toString(), { all: true });
+  try {
+    transformed = flowRemoveTypes(source.toString(), { all: true });
+  } catch (ex) {
+    ex.message = `${ex.message}\n${url}:${ex.loc.line}\n`;
+    console.error(ex.stack);
+  }
 
   return {
-    source: transformed.toString(),
+    source: transformed?.toString() || source,
     format,
   };
 }
