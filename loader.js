@@ -3,13 +3,13 @@ import { isBuiltin } from 'node:module';
 
 import flowRemoveTypes from 'flow-remove-types';
 
-export async function load(url, context, defaultLoad) {
+export async function load(url, context, nextLoad) {
   if (!shouldTransform(url)) {
-    return defaultLoad(url, context, defaultLoad);
+    return nextLoad(url, context);
   }
 
   let transformed;
-  let { source, format } = await defaultLoad(url, context, defaultLoad);
+  let { source, format } = await nextLoad(url, context);
 
   try {
     transformed = flowRemoveTypes(source.toString(), { all: true });
@@ -19,8 +19,9 @@ export async function load(url, context, defaultLoad) {
   }
 
   return {
-    source: transformed?.toString() || source,
     format,
+    shortCircuit: true,
+    source: transformed?.toString() || source,
   };
 }
 
